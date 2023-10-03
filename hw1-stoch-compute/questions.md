@@ -1,4 +1,4 @@
-# Part A: Stochastic Computing [2 pt/question, 8 points]
+#### Part A: Stochastic Computing [2 pt/question, 8 points]
 
 The provided scaffold code runs 10,000 trials of the `0.8*0.4 + 0.6` stochastic computation and plots the distribution of results. The `PART_A_example_computation` function executes the above numeric expression, and the `execute_stochastic_computation` runs a stochastic computation for <ntrials> trials and plots the distribution + reports the mean and standard deviation of the stochastic executions. The vertical red line shows the expected result. Currently, the stochastic computing operations and value-to-bitstream / bitstream-to-value conversion routines are not implemented. 
 
