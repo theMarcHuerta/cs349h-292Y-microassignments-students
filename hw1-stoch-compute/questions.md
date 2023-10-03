@@ -11,20 +11,14 @@ Implement the stochastic computing paradigm by filling in the function stubs in 
 
 Q1. How does the mean change with increasing bitstream length? How does the variance change?
 
-The mean converges to the expected result of 0.46. The standard deviation decreases at the bitstream length increases.
 
 Q2. What is the smallest representable numeric value in 1000-bit stochastic bitstream? What happens when you try to generate a bitstream for this value -- do the bitstream values converge to the desired value?
 
-1/1000 = 0.001, no there's a  high probability of producing the value 0.
 
 Q3. Using what you leaned from the analysis in (Q2), design a stochastic computation that produces an incorrect result for bitstreams with a length n=1000. You must accomplish this with stochastic operations, all values must be >= 0.1 and every constant must be a uniquely generated bitstream. Is it possible to fix this issue?
 
-You can get the stochastic computer to produce an incorrect result if you implement the expression (0.1*0.1*0.1*0.1), the expected value is ~0.000100, but the stochastic computing either returns 0.0001 or 0.0 because there aren't enough stochastic bits to represent 0.0001. If you increase the size of the bitstream to 10,000, the computation will produce the correct result. You can also run a many trials of the stochastic computation and measure the mean and standard deviation.
-
-
 Q4. What stochastic bitstream length L do we need to represent a value V, assuming V in [0,1] and V != 0? Write the equation.
 
-You need  ceil(1/V) bits.
 
 #### Part X: Non-Idealities Stochastic Computing [2 pt/question, 4 points]
 
