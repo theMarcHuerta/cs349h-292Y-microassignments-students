@@ -69,8 +69,8 @@ def build_logic_circuit():
     
     dro_p = circ.add_gate(DigitalReadOutGate())
     dro_n = circ.add_gate(DigitalReadOutGate())
-    circ.add_wire(r[0],dro_p,"A")
-    circ.add_wire(r[1],dro_n,"A")
+    circ.add_wire(fr[0],dro_p,"A")
+    circ.add_wire(fr[1],dro_n,"A")
 
     return (dro_p,dro_n),circ
 
