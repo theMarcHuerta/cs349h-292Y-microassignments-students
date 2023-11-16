@@ -191,4 +191,4 @@ PART_Y_test_analysis()
 
 # Part Z, resource efficent rng generation 
 print("---- part z: one-rng optimization ---") 
-run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(bitstream_len=1000), ntrials)
+run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(bitstream_len=1000, N=1000), ntrials)
