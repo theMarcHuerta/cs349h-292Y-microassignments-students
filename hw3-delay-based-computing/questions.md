@@ -2,9 +2,8 @@
 
 Implement the first arrival (FA), coincidence (COIN), and inhibition (INH) gates in `delay_gates.py`. To implement each gate, you need to fill in the `reset` and the `execute` functions:
 
-    - The `reset` function should reset the state of the gate before execution. Recall delay-based computing gates are stateful and "remember" pulse information, and pulses are stored during a loading stage then released during execution. The reset function should define and reset whatever flags are necessary to correctly implement the operation of the gate.
-
-    - The `execute` function should determine if the gate produces a pulse at a given timestep. The execute function takes as input the current time step (in nanoseconds), and a dictionary of input-value pairs. In this implementation, each port may have two values: PULSE (1) or NO_PULSE (0).
+ - The `reset` function should reset the state of the gate before execution. Recall delay-based computing gates are stateful and "remember" pulse information, and pulses are stored during a loading stage then released during execution. The reset function should define and reset whatever flags are necessary to correctly implement the operation of the gate.
+ - The `execute` function should determine if the gate produces a pulse at a given timestep. The execute function takes as input the current time step (in nanoseconds), and a dictionary of input-value pairs. In this implementation, each port may have two values: PULSE (1) or NO_PULSE (0).
 
 I have supplied the `delay_circuit.py` file, which simulates a delay-based computing circuit and renders the results, and a `delay_tester.py` python file which constructs some simple single-gate circuits and simulates them for you. Each test function in the `delay_tester.py` produces a visualization of each simulation and a visualization of the circuit architecture. The measured time window is shaded :
 
@@ -59,9 +58,9 @@ Let's say you want to use delay-based computation to implement operations in the
 3. What operations are not implementable in the log-domain with delay-based computing? Are these computations implementable if we were to directly encode the variable values as delays?
 
 
-# Part W: Using Delay-Based Computing [14 pts]
+# Part W: Digital Logic with Delay-Based Computing [14 pts]
 
-Move to the `digital_circuit.py` file. The following file uses race-based computing to execute `(X | not Y) and (Z | X) and (Z | Y)`. I have already implemented the scaffold for this part of the project which builds the logic circuit, and convenience functions for performing the dual-rail encoding.
+Move to the `delay_digital.py` file. The following file uses race-based computing to execute `(X | not Y) and (Z | X) and (Z | Y)`. I have already implemented the scaffold for this part of the project which builds the logic circuit, and convenience functions for performing the dual-rail encoding.
 
 1. Implement the `and` gate using delay logic. How did you implement this gate?
 
