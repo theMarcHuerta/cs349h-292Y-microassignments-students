@@ -93,13 +93,13 @@ def run_stochastic_computation(lambd, ntrials, visualize=True, summary=True):
 
    
 def PART_A_example_computation(bitstream_len):
-    # expression: 1/2*(0.8*0.4 + 0.6)
-    reference_value = 1/2*(0.8*0.4 + 0.6)
+    # expression: 0.8 * 0.4 + 0.6
+    reference_value = 0.8 * 0.4 + 0.6
     w = PosStochasticComputing.to_stoch(0.8, bitstream_len)
     x = PosStochasticComputing.to_stoch(0.4, bitstream_len)
     y = PosStochasticComputing.to_stoch(0.6, bitstream_len)
     tmp = PosStochasticComputing.stoch_mul(x, w)
-    result = PosStochasticComputing.stoch_add(tmp,y)
+    result = PosStochasticComputing.stoch_add(tmp, y)
     return reference_value, PosStochasticComputing.from_stoch(result)
 
 
