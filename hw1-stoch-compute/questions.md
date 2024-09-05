@@ -7,13 +7,11 @@ Implement the stochastic computing paradigm by filling in the function stubs in 
 - `to_stoch` : convert a value in [0,1] to a stochastic bitstream.
 - `from_stoch`: convert a stochastic bitstream to a numerical value
 - `stoch_add`: perform scaled addition over two stochastic bitstreams.
-- `stoch_mult`: perform multiplication over two stochastic bitstreams.
+- `stoch_mul`: perform multiplication over two stochastic bitstreams.
 
 Q1. How does the mean change with increasing bitstream length? How does the variance change?
 
-
 Q2. What is the smallest representable numeric value in 1000-bit stochastic bitstream? What happens when you try to generate a bitstream for this value -- do the bitstream values converge to the desired value?
-
 
 Q3. Using what you leaned from the analysis in (Q2), design a stochastic computation that produces an incorrect result for bitstreams with a length n=1000. You must accomplish this with stochastic operations, all values must be >= 0.1 and every constant must be a uniquely generated bitstream. Is it possible to fix this issue?
 
@@ -26,7 +24,6 @@ Next, we'll experiment with introducing non-idealities into the stochastic compu
 
 - bit-shift errors: this class of errors result from timing issues in circuits. This non-ideality causes one bitstream to lag behind the other during computation. For example, a bit shift error at index 1 of a bit stream would transform some stream 00101 to 00010.
 
-
 - bit-flip errors: this class of errors results from bit flips in storage elements, or in the computational circuit. This non-ideality introduces bit flips in bitstreams. For example, a bit flip error at index 1 of a bit stream would transform some stream 00101 to 01101.
 
 Fill in the `apply_bitshift` and `apply_bitflip` functions in the stochastic computing class and apply these non-idealities at the appropriate points in the stochastic computing model. Make sure these non-idealities are only enabled for this section of the homework.
@@ -38,24 +35,22 @@ Q2. What happens to the computational  results when you introduce a per-bit bits
 Q3. In summary, is the computation affected by these non-idealities? Do you see any changes in behavior as the bitstream grows?
 
 
-
 #### Part Y: Statically Analyzing Stochastic Computations [2 pt/question, 8 points]
 
-Next, we'll build a simply static analysis for stochastic computations. A _static analysis_ is a type of analysis that is able to infer information about a program without ever running the computation. The analysis we will be building determines the minimum bitstream size necessary for a computation, given a set of precisions for each of the arguments. For example, to compute the bitstream length for the following expression:
+Next, we'll build a simple static analysis for stochastic computations. A _static analysis_ is a type of analysis that is able to infer information about a program without ever running the computation. The analysis we will be building determines the minimum bitstream size necessary for a computation, given a set of precisions for each of the arguments. For example, to compute the bitstream length for the following expression:
 
     (x + y) + z
 
 We will invoke the following set of functions:
 
-    `get_size(stoch_add(stoch_add(prec_x,prec_y), prec_z))`
+    `get_size(stoch_add(stoch_add(prec_x, prec_y), prec_z))`
 
 If the precision of x is 0.01, the precision of y is 0.02 and the precision of z is 0.03, then the minimum bitstream length is 100. In this exercise, you will be populating the `StochasticComputingStaticAnalysis` class, which offers the following functions:
 
-    - `stoch_var`, given a variable with a desired precision `prec`, update the static analyzer to incorporate this informatin.
+    - `stoch_var`, given a variable with a desired precision `prec`, update the static analyzer to incorporate this information.
     - `stoch_add`, given two stochastic bitstreams that can represent values with precision `prec1` and `prec2` respectively, figure out the precision required for the result stochastic bitstream given an addition operation is performed. Update the static analyzer to incorporate any new information.
-    - `stoch_mult`, given two stochastic bitstreams that can represent values with precision `prec1` and `prec2` respectively, figure out the precision required for the result stochastic bitstream given a multiplication operation is performed. Update the static analyzer to incorporate any new information.
+    - `stoch_mul`, given two stochastic bitstreams that can represent values with precision `prec1` and `prec2` respectively, figure out the precision required for the result stochastic bitstream given a multiplication operation is performed. Update the static analyzer to incorporate any new information.
     - `get_size`, given all of the operations and variables analyzed so far, return the smallest possible bitstream size that accurately executes all operations, and can accurately represent all values.
-
 
 We will use this static analysis to figure out what stochastic bistream length to use for the computation (w*x + b), where the smallest value of w is 0.01, the smallest value of x is 0.1, and the smallest value of b is 0.1. For convenience, the scaffold file provides helper functions `PART_Y_analyze_wxb_function` for analyzing the `w*x+b` function, given a dictionary of precisions for variables `w`, `x`, and `b`, a `PART_Y_execute_wxb_function` which executes the `w*x+b` function using stochastic computing given a dictionary of variable values for `w`, `x`, and `b`, and a `PART_Y_test_analysis` function which uses the static analysis to find the best bitstream size for the `w*x+b` expresison, and then uses the size returned by the static analyzer to execute the `w*x+b` for ten random variable values that have the promised precisions.
 
@@ -67,15 +62,14 @@ Q3. How did the random executions perform when parametrized with the analyzer-se
 
 Q4. What if you execute the computation with values w=0.00012, x = 0.124, and b = 0.1? Would you expect the result to be accurate? Why or why not?
 
-
  
 #### Part Z: Sources of Error in Stochastic Computing [2 points + 2 points extra credit]
 
-Next, we will investigate the `PART_Z_execute_rng_efficient_computation` stochastic computaton. This computation implements x*x+x, and implements an optimization (`save_rngs=True`) that reuses the bitstream for x to reduce the number of random number generators.
+Next, we will investigate the `PART_Z_execute_rng_efficient_computation` stochastic computaton. This computation implements $x*x+x$, and implements an optimization (`save_rngs=True`) that reuses the bitstream for x to reduce the number of random number generators.
 
 Q1. Does the accuracy of the computation change when the `save_rngs` optimization is enabled? Why or why not?
 
-Q2. Devise an alternate method for implementing $x*x+x$ from a single stochastic bitstream. There is a way to do this with a single N+k-bit bitstream, where k is a small constant value. What did you do?
+Q2. Devise an alternate method for implementing $x*x+x$ from a single stochastic bitstream. There is a way to do this with a single (N+k)-bit bitstream, where k is a small constant value.
 
  
 #### Part W: Extend the Stochastic Computing Paradigm [15 points]
