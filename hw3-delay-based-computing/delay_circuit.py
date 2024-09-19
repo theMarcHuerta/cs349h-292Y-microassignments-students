@@ -80,7 +80,7 @@ class DelayBasedCircuit:
     def max_settling_time(self):
         return max(self.settling_times.values())
 
-    def render_circuit(self,name):
+    def render_circuit(self, name):
         g = graphviz.Digraph()
         for gate in self.gates.values():
             input_terms = []
