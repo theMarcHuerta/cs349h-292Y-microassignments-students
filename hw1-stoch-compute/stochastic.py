@@ -7,25 +7,25 @@ class PosStochasticComputing:
     APPLY_SHIFTS = False
 
     @classmethod
-    def apply_bitshift(cls,bitstream):
+    def apply_bitshift(cls, bitstream):
         if not PosStochasticComputing.APPLY_SHIFTS:
             return bitstream
 
         raise Exception("apply the bitshift error to the bitstream with probability 0.0001")
 
     @classmethod
-    def apply_bitflip(self,bitstream):
+    def apply_bitflip(self, bitstream):
         if not PosStochasticComputing.APPLY_FLIPS:
             return bitstream
-        
+
         raise Exception("apply the to the bitstream with probability 0.0001")
-        
+
 
 
     @classmethod
     def to_stoch(cls, prob, nbits):
         assert(prob <= 1.0 and prob >= 0.0)
-        raise Exception("convert a decimal value in [0,1] to an <nbit> length bitstream.") 
+        raise Exception("convert a decimal value in [0,1] to an <nbit> length bitstream.")
 
     @classmethod
     def stoch_add(cls, bitstream, bitstream2):
@@ -35,36 +35,36 @@ class PosStochasticComputing:
     @classmethod
     def stoch_mul(cls, bitstream, bitstream2):
         assert(len(bitstream) == len(bitstream2))
-        raise Exception("add two stochastic bitstreams together")
+        raise Exception("multiply two stochastic bitstreams together")
 
     @classmethod
     def from_stoch(cls, result):
         raise Exception("convert a stochastic bitstream to a numerical value")
 
 class StochasticComputingStaticAnalysis:
- 
+
     def __init__(self):
         pass
-    
+
     def req_length(self, smallest_value):
         raise Exception("figure out the smallest bitstream length necessary represent the input decimal value. This is also called the precision.")
 
-    def stoch_var(self,prec):
+    def stoch_var(self, prec):
         raise Exception("update static analysis -- the expression contains a variable with precision <prec>.")
-        result_prec = None 
-        return result_prec 
-
-
-    def stoch_add(self,prec1,prec2):
-        raise Exception("update static analysis -- the expression adds together two bitstreams with precisions <prec1> and <prec2>.")
         result_prec = None
-        return result_prec 
+        return result_prec
 
 
-    def stoch_mul(self,prec1,prec2):
-        raise Exception("update static analysis -- the expression multiplies together two bitstreams with precisions <prec1> and <prec2>.")
+    def stoch_add(self, prec1, prec2):
+        raise Exception("update static analysis -- the expression adds together two bitstreams with precisions <prec1> and <prec2> respectively.")
         result_prec = None
-        return res_prec 
+        return result_prec
+
+
+    def stoch_mul(self, prec1, prec2):
+        raise Exception("update static analysis -- the expression multiplies together two bitstreams with precisions <prec1> and <prec2> respectively.")
+        result_prec = None
+        return res_prec
 
     def get_size(self):
         raise Exception("get minimum bitstream length required by computation.")
@@ -78,7 +78,7 @@ def run_stochastic_computation(lambd, ntrials, visualize=True, summary=True):
     for i in range(ntrials):
         _,result = lambd()
         results.append(result)
-    
+
     if visualize:
         nbins = math.floor(np.sqrt(ntrials))
         plt.hist(results,bins=nbins)
@@ -91,15 +91,15 @@ def run_stochastic_computation(lambd, ntrials, visualize=True, summary=True):
 
 
 
-   
+
 def PART_A_example_computation(bitstream_len):
-    # expression: 1/2*(0.8*0.4 + 0.6)
-    reference_value = 1/2*(0.8*0.4 + 0.6)
+    # expression: 0.8 * 0.4 + 0.6
+    reference_value = 0.8 * 0.4 + 0.6
     w = PosStochasticComputing.to_stoch(0.8, bitstream_len)
     x = PosStochasticComputing.to_stoch(0.4, bitstream_len)
     y = PosStochasticComputing.to_stoch(0.6, bitstream_len)
     tmp = PosStochasticComputing.stoch_mul(x, w)
-    result = PosStochasticComputing.stoch_add(tmp,y)
+    result = PosStochasticComputing.stoch_add(tmp, y)
     return reference_value, PosStochasticComputing.from_stoch(result)
 
 
@@ -109,29 +109,29 @@ def PART_Y_analyze_wxb_function(precs):
     w_prec = analysis.stoch_var(precs["w"])
     x_prec = analysis.stoch_var(precs["x"])
     b_prec = analysis.stoch_var(precs["b"])
-    res_prec = analysis.stoch_mul(w_prec,x_prec)
+    res_prec = analysis.stoch_mul(w_prec, x_prec)
     analysis.stoch_add(res_prec, b_prec)
     N = analysis.get_size()
     print("best size: %d" % N)
     return N
 
-def PART_Y_execute_wxb_function(values,N):
-    # expression: 1/2*(0.8*0.4 + 0.6)
+def PART_Y_execute_wxb_function(values, N):
+    # expression: w*x + b
     w = values["w"]
     x = values["x"]
     b = values["b"]
-    reference_value = 1/2*(w*x + b)
+    reference_value = w*x + b
     w = PosStochasticComputing.to_stoch(w, N)
     x = PosStochasticComputing.to_stoch(x, N)
     b = PosStochasticComputing.to_stoch(b, N)
     tmp = PosStochasticComputing.stoch_mul(x, w)
-    result = PosStochasticComputing.stoch_add(tmp,b)
+    result = PosStochasticComputing.stoch_add(tmp, b)
     return reference_value, PosStochasticComputing.from_stoch(result)
 
 
 def PART_Y_test_analysis():
     precs = {"x": 0.1, "b":0.1, "w":0.01}
-    # apply the static analysis to the w*x+b expression, where the precision of x and b is 0.1 and 
+    # apply the static analysis to the w*x+b expression, where the precision of x and b is 0.1 and
     # the precision of w is 0.01
     N_optimal = analyze_example_computation(precs)
     print("best size: %d" % N_optimal)
@@ -147,9 +147,9 @@ def PART_Y_test_analysis():
 
 
 def PART_Z_execute_rng_efficient_computation(values,N,save_rngs=True):
-    # expression: 1/2*(0.8*0.4 + 0.6)
+    # expression: x*x+x
     xv = values["x"]
-    reference_value = 1/2*(xv*xv + xv)
+    reference_value = xv*xv + xv
     if save_rngs:
         x = PosStochasticComputing.to_stoch(xv, N)
         x2 = x
@@ -165,7 +165,7 @@ def PART_Z_execute_rng_efficient_computation(values,N,save_rngs=True):
 
 
 
-print("---- part a: effect of length on stochastic computation ---") 
+print("---- part a: effect of length on stochastic computation ---")
 ntrials = 10000
 run_stochastic_computation(lambda : PART_A_example_computation(bitstream_len=10), ntrials)
 run_stochastic_computation(lambda : PART_A_example_computation(bitstream_len=100), ntrials)
@@ -175,20 +175,20 @@ run_stochastic_computation(lambda : PART_A_example_computation(bitstream_len=100
 # Part X, introduce non-idealities
 PosStochasticComputing.APPLY_FLIPS = True
 PosStochasticComputing.APPLY_SHIFTS =False
-print("---- part x: effect of bit flips ---") 
+print("---- part x: effect of bit flips ---")
 run_stochastic_computation(lambda : PART_A_example_computation(bitstream_len=1000), ntrials)
 PosStochasticComputing.APPLY_FLIPS = False
 PosStochasticComputing.APPLY_SHIFTS = True
-print("---- part x: effect of bit shifts ---") 
+print("---- part x: effect of bit shifts ---")
 run_stochastic_computation(lambda : PART_A_example_computation(bitstream_len=1000), ntrials)
 PosStochasticComputing.APPLY_FLIPS = False
-PosStochasticComputing.APPLY_SHIFTS =False 
+PosStochasticComputing.APPLY_SHIFTS =False
 
 
 # Part Y, apply static analysis
-print("---- part y: apply static analysis ---") 
+print("---- part y: apply static analysis ---")
 PART_Y_test_analysis()
 
-# Part Z, resource efficent rng generation 
-print("---- part z: one-rng optimization ---") 
+# Part Z, resource efficent rng generation
+print("---- part z: one-rng optimization ---")
 run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(bitstream_len=1000, N=1000), ntrials)
