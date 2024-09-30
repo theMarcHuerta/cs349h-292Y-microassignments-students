@@ -93,8 +93,8 @@ def run_stochastic_computation(lambd, ntrials, visualize=True, summary=True):
 
 
 def PART_A_example_computation(bitstream_len):
-    # expression: 0.8 * 0.4 + 0.6
-    reference_value = 0.8 * 0.4 + 0.6
+    # expression: 1/2*(0.8 * 0.4 + 0.6)
+    reference_value = 1/2*(0.8 * 0.4 + 0.6)
     w = PosStochasticComputing.to_stoch(0.8, bitstream_len)
     x = PosStochasticComputing.to_stoch(0.4, bitstream_len)
     y = PosStochasticComputing.to_stoch(0.6, bitstream_len)
@@ -104,7 +104,7 @@ def PART_A_example_computation(bitstream_len):
 
 
 def PART_Y_analyze_wxb_function(precs):
-    # w*x + b
+    # 1/2*(w*x + b)
     analysis = StochasticComputingStaticAnalysis()
     w_prec = analysis.stoch_var(precs["w"])
     x_prec = analysis.stoch_var(precs["x"])
@@ -116,11 +116,11 @@ def PART_Y_analyze_wxb_function(precs):
     return N
 
 def PART_Y_execute_wxb_function(values, N):
-    # expression: w*x + b
+    # expression: 1/2*(w*x + b)
     w = values["w"]
     x = values["x"]
     b = values["b"]
-    reference_value = w*x + b
+    reference_value = 1/2*(w*x + b)
     w = PosStochasticComputing.to_stoch(w, N)
     x = PosStochasticComputing.to_stoch(x, N)
     b = PosStochasticComputing.to_stoch(b, N)
@@ -133,7 +133,7 @@ def PART_Y_test_analysis():
     precs = {"x": 0.1, "b":0.1, "w":0.01}
     # apply the static analysis to the w*x+b expression, where the precision of x and b is 0.1 and
     # the precision of w is 0.01
-    N_optimal = analyze_example_computation(precs)
+    N_optimal = PART_Y_analyze_wxb_function(precs)
     print("best size: %d" % N_optimal)
 
     variables = {}
@@ -142,14 +142,14 @@ def PART_Y_test_analysis():
         variables["w"] = round(np.random.uniform(),2)
         variables["b"] = round(np.random.uniform(),1)
         print(variables)
-        run_stochastic_computation(lambda : execute_example_computation(variables,N_optimal), ntrials=10000, visualize=False)
+        run_stochastic_computation(lambda : PART_Y_execute_wxb_function(variables,N_optimal), ntrials=10000, visualize=True)
         print("")
 
 
-def PART_Z_execute_rng_efficient_computation(values,N,save_rngs=True):
-    # expression: x*x+x
-    xv = values["x"]
-    reference_value = xv*xv + xv
+def PART_Z_execute_rng_efficient_computation(value,N,save_rngs=True):
+    # expression: 1/2*(x*x+x)
+    xv = value
+    reference_value = 1/2*(xv*xv + xv)
     if save_rngs:
         x = PosStochasticComputing.to_stoch(xv, N)
         x2 = x
@@ -191,4 +191,10 @@ PART_Y_test_analysis()
 
 # Part Z, resource efficent rng generation
 print("---- part z: one-rng optimization ---")
-run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(bitstream_len=1000, N=1000), ntrials)
+for _ in range(5):
+    v = round(np.random.uniform(),1)
+    print(f"x = {v}")
+    print("running with save_rngs disabled")
+    run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(value=v, N=1000, save_rngs=False), ntrials)
+    print("running with save_rngs enabled")
+    run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(value=v, N=1000, save_rngs=True), ntrials)

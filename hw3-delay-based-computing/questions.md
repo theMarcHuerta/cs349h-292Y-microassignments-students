@@ -47,16 +47,11 @@ Run it on a few values to test the function. You can use the `add_wire(src_gate,
 
 1. What is the structure of the circuit you implemented? [4 pts]
 
-Let's say you want to use delay-based computation to implement operations in the log-domain. With this method, instead of computing directly over numeric values, you encode the log (e.g., `log2`(4) instead of 4) of the numeric value as a delay, and then use delay-based computing do implement the computation, and then you raise the delay-based value to power of `2` to recover the original value. For example, to implement X*Y, we do the following steps:
+Researchers have recently explored using delay-based computing in the log domain. With this method, instead of computing directly over numeric values, a value `x` is encoded into `x'=-ln(x)` as a delay (you need not worry about encoding of negative values in this question), then use delay-based computing do implement the computation, and then you raise the delay-based value `x=e^{-x'}` to recover the original value. This method can encode a broader value range using the same delay range, and obtain results faster compared to naive encoding, especially when dealing with large values.
 
-- convert to log-domain: lX = log2(X), lY = log2(Y)
-- perform computation on log-domain values: lRes=lX+lY
-- convert to value-domain: 2^{lRes}
+2. The log domain encoding also enables operations that are difficult to implement in the original value domain. Describe how you can implement multiplication and constant value scaling in log domain.
 
-2. What operations can you implement in the log-domain with delay-based computing? Are these operations implementable with delay-based computing if you were to directly encode the values as delays?
-
-3. What operations are not implementable in the log-domain with delay-based computing? Are these computations implementable if we were to directly encode the variable values as delays?
-
+3. One downside of computing in log domain though is that addition and substraction become more difficult. However, there are effective appraoches to approximate them. For example, substraction of two values `z=x-y` is `z'=-ln(e^{-x'}-e^{-y'})` in the log domain, but it can be approximated using delay logic as `z'=min(inhibit(x'+E0,y'+F0), ...,inhibit(x'+En,y'+Fn))`, where `Ei`'s and `Fi`'s are specially picked constants. Refer to `nLDE_approximation.png` in the folder for a visualization where `x'+y'=0`. Could you devise a similar approximation approach for addition? You may also focus on the case where `x'+y'=0`. Write the expression you use for the approximation, using only `min`, `max`, `inhibit` operations.
 
 # Part W: Digital Logic with Delay-Based Computing [14 pts]
 
