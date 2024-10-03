@@ -44,8 +44,7 @@ class HDItemMem:
         self.name = name
         self.item_mem = {}
         # per-bit bit flip probabilities for the Hamming distance
-        self.prob_bit_flips = 0.0
-        # TODO set prob_bit_flips as an argument with default value 0.0?
+        self.ber = 0.0
 
     def add(self, key, hv):
         assert (hv is not None)
@@ -134,7 +133,7 @@ if __name__ == '__main__':
     hv1 = make_word(letter_cb, "fox")
     hv2 = make_word(letter_cb, "box")
     hv3 = make_word(letter_cb, "xfo")
-    hv4 = make_word(letter_cb, "care")
+    hv4 = make_word(letter_cb, "car")
 
     print(HDC.dist(hv1, hv2))
     print(HDC.dist(hv1, hv3))
