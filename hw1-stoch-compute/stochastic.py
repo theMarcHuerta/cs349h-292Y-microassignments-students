@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from fractions import Fraction
 
 class PosStochasticComputing:
     APPLY_FLIPS = False
@@ -77,14 +78,18 @@ class StochasticComputingStaticAnalysis:
             self.current_precision = prec
         else:
             self.current_precision = min(self.current_precision, prec)
-        return self.current_precision
+        return prec
 
     def stoch_add(self, prec1, prec2):
         # raise Exception("update static analysis -- the expression adds together two bitstreams with precisions <prec1> and <prec2> respectively.")
         result_prec = (prec1 + prec2) / 2.0
-        print("HELLLI")
+        # convert to a fraction with the smallest possible denominator
+        fraction = Fraction(result_prec).limit_denominator()
+        # get the denominator as a number
+        denom = fraction.denominator
+        prec_tmp = 1.0 / denom
         print(result_prec)
-        self.current_precision = result_prec
+        self.current_precision = min(prec_tmp, result_prec)
         return result_prec
 
     def stoch_mul(self, prec1, prec2):
@@ -223,9 +228,10 @@ def PART_Z_execute_rng_efficient_computation(value,N,save_rngs=True):
     xv = value
     reference_value = 1/2*(xv*xv + xv)
     if save_rngs:
-        x = PosStochasticComputing.to_stoch(xv, N)
-        x2 = x
-        x3 = x
+        x = PosStochasticComputing.to_stoch(xv, N+50)
+        x2 = x[25:N+25]
+        x3 = x[50:N+50]
+        x = x[0:N]
     else:
         x = PosStochasticComputing.to_stoch(xv, N)
         x2 = PosStochasticComputing.to_stoch(xv, N)
@@ -268,15 +274,15 @@ PosStochasticComputing.APPLY_SHIFTS =False
 
 
 # Part Y, apply static analysis
-print("---- part y: apply static analysis ---")
-PART_Y_test_analysis()
+# print("---- part y: apply static analysis ---")
+# PART_Y_test_analysis()
 
 # Part Z, resource efficent rng generation
-# print("---- part z: one-rng optimization ---")
-# for _ in range(5):
-#     v = round(np.random.uniform(),1)
-#     print(f"x = {v}")
-#     print("running with save_rngs disabled")
-#     run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(value=v, N=1000, save_rngs=False), ntrials)
-#     print("running with save_rngs enabled")
-#     run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(value=v, N=1000, save_rngs=True), ntrials)
+print("---- part z: one-rng optimization ---")
+for _ in range(5):
+    v = round(np.random.uniform(),1)
+    print(f"x = {v}")
+    print("running with save_rngs disabled")
+    run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(value=v, N=1000, save_rngs=False), ntrials)
+    print("running with save_rngs enabled")
+    run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(value=v, N=1000, save_rngs=True), ntrials)

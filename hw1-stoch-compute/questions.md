@@ -76,11 +76,65 @@ I keep a private variable keeping track of the state of precision and updating b
 
 Q2. What bitstream length did your analysis return?
 
-
+2000. Answer is .0505 for the equation so this makes sense since 2000 bits is the lowest amount of bits we need to accurately represent this.
 
 Q3. How did the random executions perform when parametrized with the analyzer-selected bitstream length?
 
+They seemed to perform super well at least based off the numbers I got below.
+best size: 2000
+{'x': 0.2, 'w': 0.61, 'b': 0.6}
+ref=0.361000
+mean=0.360781
+std=0.010732
+
+{'x': 0.6, 'w': 0.32, 'b': 0.7}
+ref=0.446000
+mean=0.445833
+std=0.010990
+
+{'x': 0.0, 'w': 0.89, 'b': 0.7}
+ref=0.350000
+mean=0.350059
+std=0.010744
+
+{'x': 0.6, 'w': 0.07, 'b': 0.8}
+ref=0.421000
+mean=0.421037
+std=0.011070
+
+{'x': 0.8, 'w': 0.1, 'b': 0.4}
+ref=0.240000
+mean=0.239895
+std=0.009484
+
+{'x': 0.1, 'w': 0.83, 'b': 0.1}
+ref=0.091500
+mean=0.091525
+std=0.006443
+
+{'x': 0.6, 'w': 0.56, 'b': 0.1}
+ref=0.218000
+mean=0.218173
+std=0.009240
+
+{'x': 0.4, 'w': 0.78, 'b': 1.0}
+ref=0.656000
+mean=0.655934
+std=0.010576
+
+{'x': 0.0, 'w': 0.99, 'b': 0.8}
+ref=0.400000
+mean=0.399889
+std=0.010993
+
+{'x': 0.3, 'w': 0.82, 'b': 0.2}
+ref=0.223000
+mean=0.223079
+std=0.009389
+
 Q4. What if you execute the parametrized computation with values w=0.00012, x = 0.124, and b = 0.1? Would you expect the result to be accurate? Why or why not?
+
+No beeause we didn't size for such a low precision so it we'd have to run a different static analysis.
  
 #### Part Z: Sources of Error in Stochastic Computing [2 points + 2 points extra credit]
 
@@ -88,9 +142,34 @@ Next, we will investigate the `PART_Z_execute_rng_efficient_computation` stochas
 
 Q1. Does the accuracy of the computation change when the `save_rngs` optimization is enabled? Why or why not?
 
+Yea it gets severely impacted, it happens because the bitstreams are all correlated and stochastic computing math is based off independent vectors. And when we multiply and do the AND operation, it just returns the same array.
+
+x = 0.4
+running with save_rngs disabled
+ref=0.280000
+mean=0.280363
+std=0.014224
+running with save_rngs enabled
+ref=0.280000
+mean=0.400217
+std=0.015507
+
 Q2. Devise an alternate method for implementing `1/2*(x*x+x)` from a single stochastic bitstream. There is a way to do this with a single (N+k)-bit bitstream, where k is a small constant value.
 
- 
+You can shift the bitstream over by K bits and then try to do the math since it'd be offset for the multiplication logical AND operations now. 
+
+
+I implemented it and it did muchhh better. For a 1000 bitstream, i generated 50 extra bits and shifted over the other 2 arrays by 25. Not sure what the exact math has to be honestly I think it just needs 1 bit of difference.
+x = 0.6
+running with save_rngs disabled
+ref=0.480000
+mean=0.479765
+std=0.015849
+running with save_rngs enabled
+ref=0.480000
+mean=0.479660
+std=0.020587
+
 #### Part W: Extend the Stochastic Computing Paradigm [15 points]
 
 Come up with your own extension, application, or analysis tool for the stochastic computing paradigm. This is your chance to be creative. Describe what task you chose, how it was implemented, and describe any interesting results that were observed. There is no need to pursue great results, e.g., beating some state-of-the-art approaches. It is fine to obtain minimum results just to show that your idea works. Here are some ideas to get you started:
