@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from fractions import Fraction
+import cv2
 
 class PosStochasticComputing:
     APPLY_FLIPS = False
@@ -261,16 +262,16 @@ ntrials = 10000
 # run_stochastic_computation(lambda : PART_X_shift_computation(bitstream_len=1000), ntrials)
 
 # Part X, introduce non-idealities
-PosStochasticComputing.APPLY_FLIPS = True
-PosStochasticComputing.APPLY_SHIFTS =False
-print("---- part x: effect of bit flips ---")
-# run_stochastic_computation(lambda : PART_A_example_computation(bitstream_len=1000), ntrials)
-PosStochasticComputing.APPLY_FLIPS = False
-PosStochasticComputing.APPLY_SHIFTS = True
-print("---- part x: effect of bit shifts ---")
-# run_stochastic_computation(lambda : PART_A_example_computation(bitstream_len=1000), ntrials)
-PosStochasticComputing.APPLY_FLIPS = False
-PosStochasticComputing.APPLY_SHIFTS =False
+# PosStochasticComputing.APPLY_FLIPS = True
+# PosStochasticComputing.APPLY_SHIFTS =False
+# print("---- part x: effect of bit flips ---")
+# # run_stochastic_computation(lambda : PART_A_example_computation(bitstream_len=1000), ntrials)
+# PosStochasticComputing.APPLY_FLIPS = False
+# PosStochasticComputing.APPLY_SHIFTS = True
+# print("---- part x: effect of bit shifts ---")
+# # run_stochastic_computation(lambda : PART_A_example_computation(bitstream_len=1000), ntrials)
+# PosStochasticComputing.APPLY_FLIPS = False
+# PosStochasticComputing.APPLY_SHIFTS =False
 
 
 # Part Y, apply static analysis
@@ -278,11 +279,63 @@ PosStochasticComputing.APPLY_SHIFTS =False
 # PART_Y_test_analysis()
 
 # Part Z, resource efficent rng generation
-print("---- part z: one-rng optimization ---")
-for _ in range(5):
-    v = round(np.random.uniform(),1)
-    print(f"x = {v}")
-    print("running with save_rngs disabled")
-    run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(value=v, N=1000, save_rngs=False), ntrials)
-    print("running with save_rngs enabled")
-    run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(value=v, N=1000, save_rngs=True), ntrials)
+# print("---- part z: one-rng optimization ---")
+# for _ in range(5):
+#     v = round(np.random.uniform(),1)
+#     print(f"x = {v}")
+#     print("running with save_rngs disabled")
+#     run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(value=v, N=1000, save_rngs=False), ntrials)
+#     print("running with save_rngs enabled")
+#     run_stochastic_computation(lambda : PART_Z_execute_rng_efficient_computation(value=v, N=1000, save_rngs=True), ntrials)
+
+
+
+
+##########################################################
+##########################################################
+################## EXTENSION/PART W ######################
+##########################################################
+##########################################################
+
+def generate_checkerboard_image(size=256, num_squares=8):
+    image = np.zeros((size, size), dtype=np.uint8) # square all black image (0s)
+    square_size = size // num_squares
+    for i in range(num_squares):
+        for j in range(num_squares):
+            if (i + j) % 2 == 0:
+                image[i * square_size:(i + 1) * square_size, j * square_size:(j + 1) * square_size] = 255
+    cv2.imwrite("checkerboard.png", image)
+    print("saved as 'checkerboard.png'")
+
+def apply_stochastic_filter(pixel_block, N):
+    bitstreams = [PosStochasticComputing.to_stoch(pixel, N) for pixel in pixel_block]
+    sum_bitstream = bitstreams[0]
+    for i in range(1, len(bitstreams)):
+        sum_bitstream = PosStochasticComputing.stoch_add(sum_bitstream, bitstreams[i])
+    avg_bitstream = PosStochasticComputing.stoch_mul(sum_bitstream, PosStochasticComputing.to_stoch(1/9, N))
+    return PosStochasticComputing.from_stoch(avg_bitstream)
+
+def PART_W_image_filter(image_path, N=1000):
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    # normalize [0, 1]
+    image_normalized = image / 255.0
+    filtered_image = np.zeros_like(image_normalized)
+
+    for i in range(1, image_normalized.shape[0] - 1):
+        for j in range(1, image_normalized.shape[1] - 1):
+            # Get the 3x3 neighborhood
+            pixel_block = [image_normalized[i - 1, j - 1], image_normalized[i - 1, j], image_normalized[i - 1, j + 1],
+                image_normalized[i, j - 1], image_normalized[i, j], image_normalized[i, j + 1],
+                image_normalized[i + 1, j - 1], image_normalized[i + 1, j], image_normalized[i + 1, j + 1]]
+            filtered_value = apply_stochastic_filter(pixel_block, N)
+            filtered_image[i, j] = filtered_value
+
+    # Convert the filtered image back to the [0, 255] range
+    filtered_image = (filtered_image * 255).astype(np.uint8)
+    cv2.imwrite("filtered_image.png", filtered_image)
+    print("Filtered image saved as 'filtered_image.png'.")
+
+generate_checkerboard_image()
+# Part W, applying stochastic computing for image filtering
+print("---_____ part w: stochastic image filter _____---")
+PART_W_image_filter("checkerboard.png", N=256)

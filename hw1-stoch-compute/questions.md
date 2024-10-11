@@ -179,3 +179,5 @@ Come up with your own extension, application, or analysis tool for the stochasti
 - Build an stochastic computing analysis of your choosing. You may build up the existing bitstream size analysis to work with abstract syntax trees, or you may devise a new analysis that studies some other property of the computation, such as error propagation or correlation.
 
 - Implement an application using the stochastic computing paradigm. Examples from literature include image processing, ML inference, and LDPC decoding.
+
+Let's implement a basic 3x3 blur filter. The implementation is in the code, all you have to do is run and itll generate a checkerboard image and then blur it using stochastic math. The checkerboard and blurred image will be saved in your local directory.
