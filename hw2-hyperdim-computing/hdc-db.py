@@ -21,9 +21,7 @@ class HDDatabase:
         raise Exception("reconstruct a dictionary of field-value pairs from a hypervector.")
 
     def add_row(self, primary_key, fields):
-        #TODO this should be raise exception?
-        row_hv = self.encode_row(fields)
-        self.db.add(primary_key, row_hv)
+        raise Exception("add a database row.")
 
     def get_row(self, key):
         raise Exception("retrieve a dictonary of field-value pairs from a hypervector row")
@@ -102,23 +100,24 @@ def digimon_value_queries(data, db):
 
 
 def analogy_query(data, db):
-    # Lotosmon is to Data as Crusadermon is to <what field>
+    # Lotosmon is to Data as Imperialdramon PM is to <what field>
 
     targ_row = db.get_row("Lotosmon")
-    other_row = db.get_row("Crusadermon")
-    print("Lotosmon has a a field with a Data value, what is the equivalent value in Crusadermon's entry")
-    value, dist = db.get_analogy(target_key="Lotosmon", other_key="Crusadermon", target_value="Data")
+    other_row = db.get_row("Imperialdramon PM")
+    print("Lotosmon has a a field with a Data value, what is the equivalent value in Imperialdramon PM's entry")
+    value, dist = db.get_analogy(target_key="Lotosmon", other_key="Imperialdramon PM", target_value="Data")
     print("Lotosmon" + str(targ_row))
-    print("Crusadermon" + str(other_row))
+    print("Imperialdramon PM" + str(other_row))
     print("------")
     print("value: %s (dist=%f)" % (value, dist))
-    print("expected result: Virus, the type of Crusadermon")
+    print("expected result: Vaccine, the type of Imperialdramon PM")
     print("")
 
 
-def __main__():
+if __name__ == '__main__':
     data = load_json()
     db = build_database(data)
+    digimon_test_encoding(data, db)
     digimon_basic_queries(data, db)
     digimon_value_queries(data, db)
     digimon_test_encoding(data, db)
