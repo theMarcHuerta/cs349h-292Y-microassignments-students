@@ -76,7 +76,7 @@ def build_logic_circuit():
 
 
 def execute_logic_circuit(dro,circ,Xbin,Ybin,Zbin):
-    circ.render_circuit("digital_circuit.png")
+    circ.render_circuit("digital_circuit")
    
     inps = []
     inps += bin_to_delay("X1",Xbin)
