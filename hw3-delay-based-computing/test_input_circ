@@ -1,0 +1,5 @@
+digraph {
+	"IN.X" [label="<IN.X> IN.X | <out> out" shape=record]
+	"IN.Y" [label="<IN.Y> IN.Y | <out> out" shape=record]
+	"IN.Z" [label="<IN.Z> IN.Z | <out> out" shape=record]
+}

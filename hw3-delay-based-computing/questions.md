@@ -13,11 +13,20 @@ Execute the `delay_tester.py` file as is to investigate the behavior of delay-ba
 
 1. What does each numbered segment in the input image represent? What does it mean when a pulse (vertical line) is contained within a numbered segment?
 
+It represents a number so there's 10 tiles and 10 numbers 0-9 so whenever we get a pulse within a certain window 0-9, it represents that value.
+
 2. What kind of value does an earlier pulse encode, what kind of value does a later pulse encode?
+
+The earlier pulse encodes a lower value and the later pulse encodes a higher value.
 
 3. Run the simulation multiple times. Do you observe any variations in the plots from execution to execution?
 
+Yea they slightly vary from run to run but so far they've been in the same window but some have been close to the edge of the next window. 
+
 4. Look at the pulse summary printed to console. How is a gate's numerical values computed from the relative delay and segment time? How is the relative delay computed from the absolute delay and the gate's settling time? The settling time for a given port is the time required for the pulse to reach a particular port.
+
+There's a setting time thats taken into account for the first window that would've been there isn't there because with the setting time its not possible for a pulse to land there. Relative delay is computed by subtracting the setting time from the absolute delay.
+
 
 # Part Y: Implementing the Delay Gates [8 pts]
 
@@ -25,14 +34,19 @@ Next, we will implement the simulations of first arrival, last arrival, delay, a
 
 1. Implement the reset and execute functions for the first arrival (`FirstArrival`) gate. Describe any internal state maintained by the gate, and what the reset operation and execution functions do for this gate. Uncomment the `test_first_arrival_gate` function in `delay_tester.py` to test the operation of the first arrival gate.
 
+So the state is a bool that tracks if we've outputted a pulse yet and if we've received a pulse yet. The reset function sets these to false and the execute function outputs a pulse if we haven't outputted a pulse yet and we get a second pulse (this implementation assumes we will get a pulse from each input every time window).
 
 2. Implement the reset and execute functions for the last arrival (`LastArrival`) gate. Describe any internal state maintained by the gate, and what the reset operation and execution functions do for this gate. Uncomment the `test_last_arrival_gate` function in `delay_tester.py` to test the operation of the last arrival gate.
+
+So the state is a bool that tracks if we've outputted a pulse yet. The reset function sets that to false and the execute function outputs a pulse upon our first pulse and then doesn't output a pulse again until that reset.
 
 
 3. Implement the reset and execute functions for the delay (`Delay`) gate. Describe any internal state maintained by the gate, and what the reset operation and execution functions do for this gate. Uncomment the `test_delay_gate` function in `delay_tester.py` to test the operation of the delay gate. What does the circuit described in the `test_delay_gate` function do to the input value? 
 
 
 4. Implement the reset and execute functions for the inhibition (`Inhibition`) gate. If two pulses arrive at the same time (which is unlikely in practice), you can assume that the gate emits a pulse with 50% probability. Describe any internal state maintained by the gate, and what the reset operation and execution functions do for this gate. Uncomment the `test_inh_gate` function in `delay_tester.py` to test the operation of the inhibition gate.
+
+The state is a bool that tracks if we've received pulse A yet. The reset function sets that to false and the execute function outputs a pulse if we haven't received a pulse A yet and we get a pulse B. Otherwise if pulse A arrives before B, we can never output a pulse.
 
 # Part Z: Using Delay-Based Computing [6 pts + 6 extra credit]
 

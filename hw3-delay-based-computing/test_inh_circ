@@ -1,0 +1,7 @@
+digraph {
+	"IN.X" [label="<IN.X> IN.X | <out> out" shape=record]
+	"IN.Y" [label="<IN.Y> IN.Y | <out> out" shape=record]
+	INH2 [label="{<A> A|<B> B} | <INH2> INH2 | <out> out" shape=record]
+	"IN.X" -> INH2 [headport=A tailport=out]
+	"IN.Y" -> INH2 [headport=B tailport=out]
+}

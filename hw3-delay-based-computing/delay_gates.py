@@ -40,14 +40,22 @@ class LastArrival(Gate):
 
     def __init__(self):
         Gate.__init__(self, "LA", ["A", "B"])
+        self.was_pulse = False
+        self.was_output = False
 
     def reset(self):
-        raise NotImplementedError
+        self.was_output = False
+        self.was_pulse = False
 
     def execute(self, time, inputs):
         in0, in1 = inputs["A"], inputs["B"]
-        raise NotImplementedError
-        # return PULSE
+        #if we get a pulse and its the second pulse, output a pulse
+        #this also assumes we will get a pulse from each input every time window
+        if (in0 == PULSE or in1 == PULSE):
+            if (self.was_pulse and not self.was_output):
+                self.was_output = True
+                return PULSE
+            self.was_pulse = True
         return NO_PULSE
 
 
@@ -55,13 +63,16 @@ class FirstArrival(Gate):
 
     def __init__(self):
         Gate.__init__(self, "FA", ["A", "B"])
+        self.was_output = False
 
     def reset(self):
-        raise NotImplementedError
+        self.was_output = False
 
     def execute(self, time, inputs):
         in0, in1 = inputs["A"], inputs["B"]
-        raise NotImplementedError
+        if (in0 == PULSE or in1 == PULSE) and not self.was_output:
+            self.was_output = True
+            return PULSE
         return NO_PULSE
 
 
@@ -69,13 +80,19 @@ class Inhibition(Gate):
 
     def __init__(self):
         Gate.__init__(self, "INH", ["A", "B"])
+        self.received_a = False
 
     def reset(self):
-        raise NotImplementedError
+        self.received_a = False
 
     def execute(self, time, inputs):
         inA, inB = inputs["A"], inputs["B"]
-        raise NotImplementedError
+        #if we get B before A
+        if (self.received_a == False and inB == PULSE):
+            if (inA == PULSE):
+                return PULSE if random.random() < 0.5 else NO_PULSE
+            return PULSE
+        self.received_a = inA == PULSE
         return NO_PULSE
 
 
@@ -102,17 +119,21 @@ class DelayGate(Gate):
     def __init__(self, delay_ns):
         Gate.__init__(self, "DEL", ["A"])
         self.delay_ns = delay_ns
-        pass
+        self.pulse_time = None
 
     def reset(self):
-        raise NotImplementedError
+        self.pulse_time = None
 
     def delay(self):
         return 1e-10
 
     def execute(self, time, inputs):
         inp = inputs["A"]
-        raise NotImplementedError
+        if inp == PULSE and self.pulse_time is None:
+            self.pulse_time = time + self.delay_ns
+        if self.pulse_time is not None and time >= self.pulse_time:
+            self.pulse_time = None
+            return PULSE
         return NO_PULSE
 
 
