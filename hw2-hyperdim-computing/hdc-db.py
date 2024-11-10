@@ -6,34 +6,77 @@ class HDDatabase:
 
     def __init__(self):
         self.db = HDItemMem("db")
-        raise Exception("other instantiations here")
+        self.string_codebook = HDCodebook("string_codebook")
+        self.field_codebook = HDCodebook("field_codebook")
 
     def encode_string(self, value):
-        raise Exception("translate a string to a hypervector")
+        if not self.string_codebook.has(value):
+            self.string_codebook.add(value)
+        return self.string_codebook.get(value)
 
     def decode_string(self, hypervec):
-        raise Exception("translate a hypervector to a string")
+        distances = self.string_codebook.distance(hypervec)
+        return min(distances, key=distances.get)
 
     def encode_row(self, fields):
-        raise Exception("translate a dictionary of field-value pairs to a hypervector")
+        encoded_fields = []
+        for field, value in fields.items():
+            field_hv = self.encode_string(field)
+            value_hv = self.encode_string(value)
+            # Bind fieldwith val
+            bound_hv = HDC.bind(field_hv, value_hv)
+            encoded_fields.append(bound_hv)
+        # Bundle all bound field-value pairs into a single row hypervector
+        return HDC.bundle(encoded_fields)
 
-    def decode_row(self, hypervec):
-        raise Exception("reconstruct a dictionary of field-value pairs from a hypervector.")
+    def decode_row(self, row_hv):
+        decoded_fields = {}
+        for field in self.field_codebook.all_keys():
+            field_hv = self.encode_string(field)
+            # Unbind the field from the row (a*b) + (c*d) if we unbind a
+            # we should get (b) + (c*d)
+            potential_value_hv = HDC.bind(row_hv, field_hv)
+            # Find the closest matching value string in the string codebook
+            # if we wta then we should get the closest thing to b
+            closest_value = self.string_codebook.wta(potential_value_hv)
+            decoded_fields[field] = closest_value
+        return decoded_fields
 
     def add_row(self, primary_key, fields):
-        raise Exception("add a database row.")
+        row_hv = self.encode_row(fields)
+        self.db.add(primary_key, row_hv)
+        # if a field we aint seen yet, add it in
+        for field in fields.keys():
+            if not self.field_codebook.has(field):
+                self.field_codebook.add(field)
 
     def get_row(self, key):
-        raise Exception("retrieve a dictonary of field-value pairs from a hypervector row")
+        row_hv = self.db.get(key)
+        return self.decode_row(row_hv)
 
     def get_value(self, key, field):
-        raise Exception("given a primary key and a field, get the value assigned to the field")
+        row_hv = self.db.get(key)
+        decoded_row = self.decode_row(row_hv)
+        return decoded_row.get(field, None) 
 
     def get_matches(self, field_value_dict, threshold=0.4):
-        raise Exception("get database entries that contain provided dictionary of field-value pairs")
+        query_hv = self.encode_row(field_value_dict) #gonna use this to unbind
+        distances = self.db.distance(query_hv)
+        matches = {}
+        for key, dist in distances.items():
+            if dist <= threshold:
+                matches[key] = dist  
+        return matches
 
     def get_analogy(self, target_key, other_key, target_value):
-        raise Exception("analogy query")
+        decoded_target_row = self.get_row(target_key)
+        target_field = None
+        for field, value in decoded_target_row.items():
+            if value == target_value:
+                target_field = field
+                break
+        other_value = self.get_value(other_key, target_field)
+        return other_value, 0.0 
 
 
 def load_json():
@@ -50,6 +93,7 @@ def build_database(data):
     HDC.SIZE = 10000
     db = HDDatabase()
 
+    # gets the database and every row is passsed to add row
     for key, fields in data.items():
         db.add_row(key, fields)
 
@@ -65,12 +109,12 @@ def summarize_result(data, result, summary_fn):
 def digimon_basic_queries(data, db):
 
     print("===== virus-plant query =====")
-    thr = 0.40
+    thr = 0.4
     digis = db.get_matches({"Type": "Virus", "Attribute": "Plant"}, threshold=thr)
     summarize_result(data, digis, lambda row: "true match" if row["Type"] == "Virus" and row["Attribute"] == "Plant" else "false positive")
 
     print("===== champion query =====")
-    thr = 0.40
+    thr = 0.4
     digis = db.get_matches({"Stage": "Champion"}, threshold=thr)
     summarize_result(data, digis, lambda row: "true match" if row["Stage"] == "Champion" else "false positive")
 
@@ -120,5 +164,5 @@ if __name__ == '__main__':
     digimon_test_encoding(data, db)
     digimon_basic_queries(data, db)
     digimon_value_queries(data, db)
-    digimon_test_encoding(data, db)
+    # digimon_test_encoding(data, db)
     analogy_query(data, db)

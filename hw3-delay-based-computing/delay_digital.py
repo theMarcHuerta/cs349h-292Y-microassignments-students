@@ -53,21 +53,12 @@ def or_gate(circ, A, B):
     circ.add_wire(An, FA, "A")
     circ.add_wire(Bn, FA, "B")
     
-    return (LA, FA)
+    return (FA, LA)
 
 def not_gate(circ, A):
     (Ap, An) = A
     
-    # Use Inhibition to invert the input
-    inh = circ.add_gate(Inhibition())
-    circ.add_wire(Ap, inh, "A")
-    
-    # Constant pulse to inhibit
-    const_pulse = circ.add_gate(Input("const"))
-    const_pulse.set_pulse_window(0, circ.segment_time)
-    circ.add_wire(const_pulse, inh, "B")
-    
-    return (inh, None)
+    return (An, Ap)
 
 
 def build_logic_circuit():
