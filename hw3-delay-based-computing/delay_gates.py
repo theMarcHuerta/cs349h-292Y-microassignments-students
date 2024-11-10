@@ -103,14 +103,15 @@ class DigitalReadOutGate(Gate):
         self.has_pulse = False
 
     def reset(self):
-        raise NotImplementedError
+        self.has_pulse = False
 
     def delay(self):
         return 1e-10
 
     def execute(self, time, inputs):
         inp = inputs["A"]
-        raise NotImplementedError
+        if inp == PULSE:
+            self.has_pulse = True
         return NO_PULSE
 
 
@@ -119,10 +120,14 @@ class DelayGate(Gate):
     def __init__(self, delay_ns):
         Gate.__init__(self, "DEL", ["A"])
         self.delay_ns = delay_ns
+        # print("delay_ns")
+        # print(self.delay_ns)
         self.pulse_time = None
+        self.pulsed = False
 
     def reset(self):
         self.pulse_time = None
+        self.pulsed = False
 
     def delay(self):
         return 1e-10
@@ -131,8 +136,9 @@ class DelayGate(Gate):
         inp = inputs["A"]
         if inp == PULSE and self.pulse_time is None:
             self.pulse_time = time + self.delay_ns
-        if self.pulse_time is not None and time >= self.pulse_time:
-            self.pulse_time = None
+        #if we have a pulse time we've set and we havent pulsed before, then 
+        if self.pulse_time is not None and time >= self.pulse_time and not self.pulsed:
+            self.pulsed = True
             return PULSE
         return NO_PULSE
 

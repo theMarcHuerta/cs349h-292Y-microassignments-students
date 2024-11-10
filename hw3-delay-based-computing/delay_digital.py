@@ -24,28 +24,50 @@ def bin_to_delay(name,val,segments=10):
     yield (pos_lbl,pos)
     yield (neg_lbl,neg)
 
-def and_gate(circ,A,B):
-    (Ap,An) = A
-    (Bp,Bn) = B
-    Rp,Rn = None,None
-    raise NotImplementedError 
-    return (Rp,Rn)
+def and_gate(circ, A, B):
+    (Ap, An) = A
+    (Bp, Bn) = B
+    
+    # the positives go into the LA
+    LA = circ.add_gate(LastArrival())
+    circ.add_wire(Ap, LA, "A")
+    circ.add_wire(Bp, LA, "B")
+    
+    FA = circ.add_gate(FirstArrival())
+    circ.add_wire(An, FA, "A")
+    circ.add_wire(Bn, FA, "B")
+    
+    return (LA, FA)
     
 
-def or_gate(circ,A,B):
-    (Ap,An) = A
-    (Bp,Bn) = B
-    Rp,Rn = None,None
-    raise NotImplementedError 
-    return (Rp,Rn)
- 
+def or_gate(circ, A, B):
+    (Ap, An) = A
+    (Bp, Bn) = B
+    
+    # the positives go into the LA
+    FA = circ.add_gate(FirstArrival())
+    circ.add_wire(Ap, FA, "A")
+    circ.add_wire(Bp, FA, "B")
+    
+    LA = circ.add_gate(LastArrival())
+    circ.add_wire(An, FA, "A")
+    circ.add_wire(Bn, FA, "B")
+    
+    return (LA, FA)
 
-
-def not_gate(circ,A):
-    (Ap,An) = A
-    Rp,Rn = None,None
-    raise NotImplementedError 
-    return (Rp,Rn)
+def not_gate(circ, A):
+    (Ap, An) = A
+    
+    # Use Inhibition to invert the input
+    inh = circ.add_gate(Inhibition())
+    circ.add_wire(Ap, inh, "A")
+    
+    # Constant pulse to inhibit
+    const_pulse = circ.add_gate(Input("const"))
+    const_pulse.set_pulse_window(0, circ.segment_time)
+    circ.add_wire(const_pulse, inh, "B")
+    
+    return (inh, None)
 
 
 def build_logic_circuit():
